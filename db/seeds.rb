@@ -7,7 +7,7 @@ def build(items, model_class)
     image_url = item.delete(:image_url)
     model = model_class.create!(item)
     file = URI.open(image_url)
-    model.photo.attach(io: file, filename: "#{item[:name].downcase}.png", content_type: 'image/png')
+    # model.photo.attach(io: file, filename: "#{item[:name].downcase}.png", content_type: 'image/png')
     yield(model) if block_given?
   end
 end
@@ -83,7 +83,7 @@ end
 
 # get all ingredients grouped by the category
 
-number_of_recipes = 1
+number_of_recipes = 20
 ingredients_grouped_by_category = Ingredient.all.group_by(&:category)
 
 ingredients_grouped_by_category['Carb'].each do |carb|
