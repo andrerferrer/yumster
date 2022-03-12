@@ -1,8 +1,8 @@
 class RecipesController < ApplicationController
   def selection
     @recipe = Recipe.find(params[:id])
-    @recipes = shuffle_recipes(
-      *@recipe.ingredient_ids
+    @recipes = find_recipes(
+      @recipe.ingredient_ids
     )
     @favorite = current_user.favorites.find_by(recipe: @recipe)
 
@@ -18,10 +18,12 @@ class RecipesController < ApplicationController
   end
 
   def search
-    @recipes = shuffle_recipes(
-      query(:protein),
-      query(:carb),
-      query(:vegetable)
+    @recipes = find_recipes(
+      [
+        query(:protein),
+        query(:carb),
+        query(:vegetable)
+      ]
     )
     if @recipes.present?
       redirect_to selection_path(@recipes.sample)
@@ -37,13 +39,7 @@ class RecipesController < ApplicationController
     params.require(:search)[category].to_i
   end
 
-  def shuffle_recipes(protein, carb, vegetable)
-    recipes = Recipe.all
-    recipes.filter do |recipe|
-      ingredients_ids = recipe.ingredients.pluck(:id)
-      ingredients_ids.include?(protein) &&
-      ingredients_ids.include?(carb) &&
-      ingredients_ids.include?(vegetable)
-    end
+  def find_recipes(ingredients)
+    Recipe.filtered_by_ingredients ingredients
   end
 end
